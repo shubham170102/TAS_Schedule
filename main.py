@@ -20,14 +20,14 @@ studentsDataFile_Name = 'MOCK_DATA.xlsx'
 coursesDataFile_Name = 'TAS_Students.xlsx'
 
 studentsDataFile = pd.read_excel(studentsDataFile_Name, sheet_name=0)
-coursesDataFile = pd.read_excel(coursesDataFile_Name, sheet_name=0)
+coursesDataFile = pd.read_excel(coursesDataFile_Name, sheet_name=1)
 
 # Read Column data
 studentFirstChoices = studentsDataFile['Preference 1'].tolist()
 studentSecondChoices = studentsDataFile['Preference 2'].tolist()
 studentThirdChoices = studentsDataFile['Preference 3'].tolist()
-courseMins = coursesDataFile['Minimum'].tolist()
-courseMaxs = coursesDataFile['Maximum/25'].tolist()
+courseMins = coursesDataFile['Test Min'].tolist()
+courseMaxs = coursesDataFile['Test Max'].tolist()
 numStudents = len(studentFirstChoices)
 numCourses = len(courseMins)
 
@@ -47,6 +47,9 @@ def getPreferences():
                 preference.append(1)
             else:
                 preference.append(0)
+
+    for course in range(numCourses):
+        preference.append(int(numStudents*5/numCourses))
     return preference
 
 # Matrix 'A' and Matrix 'B' combined (described in Google Doc)
@@ -61,6 +64,8 @@ def getConstraintMatrix():
             row.append(1)
         for i in range(numStudents*numCourses-student*numCourses-numCourses):
             row.append(0)
+        for course in range(numCourses):
+            row.append(0)
         constraint_coeffs.append(row)
     #B
     for course in range(numCourses):
@@ -71,6 +76,32 @@ def getConstraintMatrix():
         for j in range(numCourses-course-1):
             row.append(0)
         row = row*numStudents
+        
+        for j in range(course):
+            row.append(0)
+        courseMax = courseMaxs[course]
+        row.append(-courseMax)
+        for j in range(numCourses-course-1):
+            row.append(0)
+        
+        constraint_coeffs.append(row)
+    #B2
+    for course in range(numCourses):
+        row = []
+        for j in range(course):
+            row.append(0)
+        row.append(-1)
+        for j in range(numCourses-course-1):
+            row.append(0)
+        row = row*numStudents
+        
+        for j in range(course):
+            row.append(0)
+        courseMin = courseMins[course]
+        row.append(courseMin)
+        for j in range(numCourses-course-1):
+            row.append(0)
+        
         constraint_coeffs.append(row)
     return constraint_coeffs
 
@@ -78,9 +109,9 @@ def getConstraintMatrix():
 def getConstraintBounds():
     #A
     bounds = [1]*numStudents
-    #B
-    for i in range(numCourses):
-        bounds.append(courseMaxs[i])
+    #B and B2
+    for i in range(2*numCourses):
+        bounds.append(0)
     return bounds
 
 # Consolidate the problem data
@@ -91,8 +122,8 @@ def create_data_model():
     data['obj_coeffs'] = getPreferences()
     data['constraint_coeffs'] = getConstraintMatrix()
     data['bounds'] = getConstraintBounds()
-    data['num_vars'] = numCourses*numStudents
-    data['num_constraints'] = numCourses+numStudents
+    data['num_vars'] = numCourses*numStudents+numCourses
+    data['num_constraints'] = numStudents+(2*numCourses)
     return data
 
 # Instantiate the data
@@ -108,9 +139,9 @@ print('Number of variables =', solver.NumVariables())
 
 
 
-# Define Constraints for the solver from the data
+# Define Constraints for the solver from the data (-1000 is a lazy way to bound this, change it later)
 for i in range(data['num_constraints']):
-    constraint = solver.RowConstraint(0, data['bounds'][i], '')
+    constraint = solver.RowConstraint(-1000, data['bounds'][i], '')
     for j in range(data['num_vars']):
         constraint.SetCoefficient(x[j], data['constraint_coeffs'][i][j])
 print('Number of constraints =', solver.NumConstraints())
@@ -141,6 +172,10 @@ if status == pywraplp.Solver.OPTIMAL:
     
     
     # Statistics
+    coursesRunning = []
+    for course in range(numCourses):
+        coursesRunning.append(solution[numCourses*numStudents+course])
+    
     studentAssignments = [0]*numStudents
     for student in range(numStudents):
         for course in range(numCourses):
