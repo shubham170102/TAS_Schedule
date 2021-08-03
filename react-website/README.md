@@ -1,5 +1,8 @@
 # TA Schedule React Website
 
+This is the website we are currently building out for the project. As of right now we only really need two pages. A login page that still needs to be styled, which will then take us to the main page where the applicable solution can be applied. 
+
+
 ## Installation commands to run in terminal before compilation
 ### `npm i @auth0/auth0-react`
 
