@@ -1,15 +1,18 @@
 # TA Schedule React Website
 
-# Installs to run in terminal
-### `Auth0`
+## Installation commands to run in terminal before compilation
+### `npm i @auth0/auth0-react`
 
 Authentication we have set up for users\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+\
+\
+\
+\
+\
 
 
+## Helpful Commands
 ### `npm start`
 
 Runs the app in the development mode.\
