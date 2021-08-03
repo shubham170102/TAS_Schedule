@@ -3,13 +3,13 @@
 ## Installation commands to run in terminal before compilation
 ### `npm i @auth0/auth0-react`
 
-Authentication we have set up for users\
+Authentication we have set up for users
 
 \
 \
 \
 \
-\
+
 
 
 ## Helpful Commands
