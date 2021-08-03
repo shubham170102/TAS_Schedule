@@ -8,7 +8,6 @@ Authentication we have set up for users
 \
 \
 \
-\
 
 
 
