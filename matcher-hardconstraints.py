@@ -218,7 +218,9 @@ if status == pywraplp.Solver.OPTIMAL:
             numThirdChoiceAssignment+=1
         else:
             numNoAssignment+=1    
-        
+            
+    prefobj = 5*numFirstChoiceAssignment+3*numSecondChoiceAssignment+numThirdChoiceAssignment
+    print('Placement Objective Value: %d' % prefobj)
     print('First Choice Assignments: %.5f (%d/%d)' 
           % (float(numFirstChoiceAssignment)/numStudents, numFirstChoiceAssignment, numStudents))
     print('Second Choice Assignments: %.5f (%d/%d)' 
