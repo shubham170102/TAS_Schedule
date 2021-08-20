@@ -17,18 +17,13 @@ courseMaxs = coursesDataFile['Maximum/25'].tolist()
 S = len(studentFirstChoices)
 C = len(courseMins)
 
-
 model = LpProblem("TAS Matching", LpMaximize)
+solver = getSolver('SCIP_CMD')
 
-
-#variables (x, y, z, q)
-studentAssignments = [[LpVariable(("S%d:C%d" % (s, c)), 0, 1, LpInteger) 
+#variables
+studentAssignments = [[LpVariable("S%dC%d"%(s,c), 0, 1, LpInteger) 
                        for c in range(C)] for s in range(S)]
-classIsEmpty = [LpVariable(("C%dE" % c), 0, 1, LpInteger) 
-                       for c in range(C)]
-classDoesntMeetMinimum = [LpVariable(("C%dLM" % c), 0, 1, LpInteger) 
-                       for c in range(C)]
-classOverMaximum = [LpVariable(("C%dGM" % c), 0, 1, LpInteger) 
+classWillRun = [LpVariable("C%dr"%c, 0, 1, LpInteger) 
                        for c in range(C)]
 
 #Sum of students in each class
@@ -38,12 +33,14 @@ for c in range(C):
         sumStudentsInClass[c] += studentAssignments[s][c]
 
 #Constraints for each class
-constraints = [[LpConstraint() for c in range(C)] for i in range(4)]
+constraints = [[LpConstraint() for c in range(C)] for i in range(2)]
 for c in range(C):
-    constraints[0][c] = sumStudentsInClass[c] + classIsEmpty[c] >= 1
-    constraints[1][c] = sumStudentsInClass[c] + S*classIsEmpty[c] <= S
-    constraints[2][c] = sumStudentsInClass[c] + courseMins[c]*classDoesntMeetMinimum[c] >= courseMins[c]
-    constraints[3][c] = sumStudentsInClass[c] - S*classOverMaximum[c] + courseMaxs[c]*classOverMaximum[c] <= courseMaxs[c]
+    hardMin = sumStudentsInClass[c] - courseMins[c]*classWillRun[c]
+    hardMax = sumStudentsInClass[c] - courseMaxs[c]*classWillRun[c]
+    cMin = LpConstraint(e=hardMin, sense=1, name="C%dm"%c, rhs=0)
+    cMax = LpConstraint(e=hardMax, sense=-1, name="C%dM"%c, rhs=0)
+    constraints[0][c] = cMin
+    constraints[1][c] = cMax
 
 maxAssignmentConstraint = [LpConstraint() for s in range(S)]
 for s in range(S):
@@ -52,13 +49,13 @@ for s in range(S):
         sumOfAssignments += studentAssignments[s][c]
     maxAssignmentConstraint[s] = sumOfAssignments <= 1
     
-    
 #Student preference vector (for the objective function)
 studentPreferences = [[0 for c in range(C)] for s in range(S)]
 for s in range(S):
     c1 = (studentFirstChoices[s])-1
     c2 = (studentSecondChoices[s])-1
     c3 = (studentThirdChoices[s])-1
+    #students who bullet vote will have their single preference value be 1
     studentPreferences[s][c1] = 5
     studentPreferences[s][c2] = 3   
     studentPreferences[s][c3] = 1
@@ -66,15 +63,10 @@ for s in range(S):
 #Objective function
 objective = LpAffineExpression()
 for c in range(C):
-    placement = LpAffineExpression()
     for s in range(S):
-        placement += studentPreferences[s][c]*studentAssignments[s][c]
-    penalty = 5
-    objective += placement
-    objective += penalty*classIsEmpty[c]
-    objective += (-penalty)*classDoesntMeetMinimum[c]
-    objective += (-penalty)*classOverMaximum[c]
-
+        objective += studentPreferences[s][c]*studentAssignments[s][c]
+    objective += (5*S/C)*classWillRun[c]
+    
 #send data to model
 model += objective
 for s in range(S):
@@ -86,7 +78,7 @@ model.writeMPS("TAS.mps")
 
 #Solve
 model.writeLP("TAS.lp")
-model.solve()
+model.solve(solver)
 print("Status:", LpStatus[model.status])
 print("Objective value: ", value(model.objective))
 
@@ -94,9 +86,6 @@ print("Objective value: ", value(model.objective))
 for c in range(C):
     for s in range(S):    
         studentAssignments[s][c] = int(studentAssignments[s][c].varValue)
-    classIsEmpty[c] = classIsEmpty[c].varValue
-    classDoesntMeetMinimum[c] = classDoesntMeetMinimum[c].varValue
-    classOverMaximum[c] = classOverMaximum[c].varValue
 
 #Output Results
 numFirstChoiceAssignment = 0
@@ -118,14 +107,14 @@ for s in range(S):
     for c in range(C):        
         #Courses Stats
         courseId = c+1
-        if (studentAssignments[s][c] == 1): 
-            courseSizes[c] += 1
         if (courseId == firstChoice): 
             courseFirstChoices[c] += 1
         elif (courseId == secondChoice):
             courseSecondChoices[c] += 1
         elif (courseId == thirdChoice):
             courseThirdChoices[c] += 1  
+        if (studentAssignments[s][c] == 1): 
+            courseSizes[c] += 1
             
         #Students Stats
         if (studentAssignments[s][c] == 1): 

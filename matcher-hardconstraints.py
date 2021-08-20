@@ -49,7 +49,7 @@ def getPreferences():
                 preference.append(0)
 
     for course in range(numCourses):
-        preference.append(int(numStudents*5/numCourses))
+        preference.append(int(5*numStudents*5/numCourses))
     return preference
 
 # Matrix 'A' and Matrix 'B' combined (described in Google Doc)
