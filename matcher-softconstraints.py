@@ -12,14 +12,14 @@ coursesDataFile = pd.read_excel(coursesDataFile_Name, sheet_name=1)
 studentFirstChoices = studentsDataFile['Preference 1'].tolist()
 studentSecondChoices = studentsDataFile['Preference 2'].tolist()
 studentThirdChoices = studentsDataFile['Preference 3'].tolist()
-courseMins = coursesDataFile['Minimum/25'].tolist()
-courseMaxs = coursesDataFile['Maximum/25'].tolist()
+courseMins = coursesDataFile['Test Min'].tolist()
+courseMaxs = coursesDataFile['Test Max'].tolist()
 S = len(studentFirstChoices)
 C = len(courseMins)
 
 
 model = LpProblem("TAS Matching", LpMaximize)
-
+solver = getSolver('PULP_CBC_CMD')
 
 #variables (x, y, z, q)
 studentAssignments = [[LpVariable(("S%d:C%d" % (s, c)), 0, 1, LpInteger) 
@@ -69,7 +69,7 @@ for c in range(C):
     placement = LpAffineExpression()
     for s in range(S):
         placement += studentPreferences[s][c]*studentAssignments[s][c]
-    penalty = 5
+    penalty = 10
     objective += placement
     objective += penalty*classIsEmpty[c]
     objective += (-penalty)*classDoesntMeetMinimum[c]
@@ -86,7 +86,7 @@ model.writeMPS("TAS.mps")
 
 #Solve
 model.writeLP("TAS.lp")
-model.solve()
+model.solve(solver)
 print("Status:", LpStatus[model.status])
 print("Objective value: ", value(model.objective))
 

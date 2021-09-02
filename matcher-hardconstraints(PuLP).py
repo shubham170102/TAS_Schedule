@@ -1,4 +1,5 @@
 import pandas as pd
+import csv
 from pulp import *
 
 # Open Excel Files
@@ -9,16 +10,20 @@ studentsDataFile = pd.read_excel(studentsDataFile_Name, sheet_name=0)
 coursesDataFile = pd.read_excel(coursesDataFile_Name, sheet_name=1)
 
 # Read Column data
+courseNames = coursesDataFile['Course Name'].tolist()
+studentFirstName = studentsDataFile['first_name'].tolist()
+studentLastName = studentsDataFile['last_name'].tolist()
+
 studentFirstChoices = studentsDataFile['Preference 1'].tolist()
 studentSecondChoices = studentsDataFile['Preference 2'].tolist()
 studentThirdChoices = studentsDataFile['Preference 3'].tolist()
-courseMins = coursesDataFile['Minimum/25'].tolist()
-courseMaxs = coursesDataFile['Maximum/25'].tolist()
+courseMins = coursesDataFile['Test Min'].tolist()
+courseMaxs = coursesDataFile['Test Max'].tolist()
 S = len(studentFirstChoices)
 C = len(courseMins)
 
 model = LpProblem("TAS Matching", LpMaximize)
-solver = getSolver('SCIP_CMD')
+solver = getSolver('PULP_CBC_CMD')
 
 #variables
 studentAssignments = [[LpVariable("S%dC%d"%(s,c), 0, 1, LpInteger) 
@@ -32,16 +37,28 @@ for c in range(C):
     for s in range(S):
         sumStudentsInClass[c] += studentAssignments[s][c]
 
-#Constraints for each class
-constraints = [[LpConstraint() for c in range(C)] for i in range(2)]
+#Constraints described by Dr. Miller in email
+runConstraints = [[LpConstraint() for s in range(S)] for c in range(C)]
 for c in range(C):
+    for s in range(S):  
+        constraint = studentAssignments[s][c] - classWillRun[c]
+        runConstraints[c][s] = LpConstraint(e=constraint, sense=-1, name="C%dS%dr"%(c, s), rhs=0)
+sizeConstraints = [LpConstraint() for c in range(C)]    
+for c in range(C):
+    constraint = classWillRun[c] - sumStudentsInClass[c]
+    sizeConstraints[c] = LpConstraint(e=constraint, sense=-1, name="C%ds"%c, rhs=0)
+
+#Constraints for each class
+classConstraints = [[LpConstraint() for c in range(C)] for i in range(2)]
+for c in range(C):    
     hardMin = sumStudentsInClass[c] - courseMins[c]*classWillRun[c]
     hardMax = sumStudentsInClass[c] - courseMaxs[c]*classWillRun[c]
     cMin = LpConstraint(e=hardMin, sense=1, name="C%dm"%c, rhs=0)
     cMax = LpConstraint(e=hardMax, sense=-1, name="C%dM"%c, rhs=0)
-    constraints[0][c] = cMin
-    constraints[1][c] = cMax
+    classConstraints[0][c] = cMin
+    classConstraints[1][c] = cMax
 
+#Constraint limiting the number of classes a student should be assigned to
 maxAssignmentConstraint = [LpConstraint() for s in range(S)]
 for s in range(S):
     sumOfAssignments = LpAffineExpression()
@@ -50,30 +67,47 @@ for s in range(S):
     maxAssignmentConstraint[s] = sumOfAssignments <= 1
     
 #Student preference vector (for the objective function)
+# studentPreferences = [[0 for c in range(C)] for s in range(S)]
+# for s in range(S):
+#     c1 = (studentFirstChoices[s])-1
+#     c2 = (studentSecondChoices[s])-1
+#     c3 = (studentThirdChoices[s])-1
+#     #students who bullet vote will have their single preference value be 1
+#     studentPreferences[s][c1] = 5
+#     studentPreferences[s][c2] = 3   
+#     studentPreferences[s][c3] = 1
+ 
 studentPreferences = [[0 for c in range(C)] for s in range(S)]
 for s in range(S):
-    c1 = (studentFirstChoices[s])-1
-    c2 = (studentSecondChoices[s])-1
-    c3 = (studentThirdChoices[s])-1
-    #students who bullet vote will have their single preference value be 1
-    studentPreferences[s][c1] = 5
-    studentPreferences[s][c2] = 3   
-    studentPreferences[s][c3] = 1
-    
+    coursePreferences = []
+    for c in range(C):
+        if (studentFirstChoices[s] == (c + 1)):
+            coursePreferences.append(5)
+        elif (studentSecondChoices[s] == (c + 1)):
+            coursePreferences.append(3)
+        elif (studentThirdChoices[s] == (c + 1)):
+            coursePreferences.append(1)
+        else:
+            coursePreferences.append(0)
+    studentPreferences[s] = coursePreferences
+   
 #Objective function
 objective = LpAffineExpression()
 for c in range(C):
     for s in range(S):
         objective += studentPreferences[s][c]*studentAssignments[s][c]
-    objective += (5*S/C)*classWillRun[c]
+    #objective += (5*S/C)*classWillRun[c]
     
 #send data to model
 model += objective
 for s in range(S):
     model += maxAssignmentConstraint[s]
 for c in range(C):
-    for i in range(len(constraints)):
-        model += constraints[i][c]
+    for s in range(S):
+        model += runConstraints[c][s]
+    model += sizeConstraints[c]
+    for i in range(len(classConstraints)):
+        model += classConstraints[i][c]
 model.writeMPS("TAS.mps")
 
 #Solve
@@ -151,3 +185,61 @@ print('Multi Assignments: %.5f (%d/%d)'
       % (float(numMultiAssignment)/S, numMultiAssignment, S))
 print('No Assignments: %.5f (%d/%d)'
       % (float(numNoAssignment)/S, numNoAssignment, S))
+
+
+#Output to CSV
+with open('Output_Courses.csv', mode='w') as course_file:
+    course_writter = csv.writer(course_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL, lineterminator = '\n')
+    #write column names
+    columnNames = []
+    columnNames.append('Course number')
+    columnNames.append('Course name')
+    columnNames.append('First choice')
+    columnNames.append('Second choice')
+    columnNames.append('Third choice')
+    columnNames.append('Weight')
+    columnNames.append('Minimum class size')
+    columnNames.append('Maximum class size')
+    columnNames.append('Students assigned')
+    course_writter.writerow(columnNames)
+    
+    #write row data
+    for c in range(C):
+        rowData = []
+        c1 = courseFirstChoices[c]
+        c2 = courseSecondChoices[c]
+        c3 = courseThirdChoices[c]
+        
+        rowData.append(c+1) #'Course number'
+        rowData.append(courseNames[c]) #'Course name'
+        rowData.append(c1) #'First choice'
+        rowData.append(c2) #'Second choice'
+        rowData.append(c3) #'Third choice'
+        rowData.append(5*c1+3*c2+c3) #'Weight'
+        rowData.append(courseMins[c]) #'Minimum class size'
+        rowData.append(courseMaxs[c]) #'Maximum class size'
+        rowData.append(courseSizes[c]) #'Students assigned'
+        course_writter.writerow(rowData)
+
+with open('Output_Students.csv', mode='w') as course_file:
+    student_writer = csv.writer(course_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL, lineterminator = '\n')
+    #write column names
+    columnNames = []
+    columnNames.append('Student ID')
+    columnNames.append('First Name')
+    columnNames.append('Last Name')
+    columnNames.append('Course Assignment')
+    student_writer.writerow(columnNames)
+    
+    #write row data
+    for s in range(S):
+        ca = "%d"%studentIdAssignments[s][0]
+        for i in range(1, len(studentIdAssignments[s])):
+            ca += ", %d"%studentIdAssignments[s][i]
+        
+        rowData = []
+        rowData.append(s+1)#'Student ID'
+        rowData.append(studentFirstName[s])#'First Name'
+        rowData.append(studentLastName[s])#'Last Name'
+        rowData.append(ca)#'Course Assignment'
+        student_writer.writerow(rowData)
