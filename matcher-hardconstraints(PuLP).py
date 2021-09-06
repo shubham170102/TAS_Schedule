@@ -221,7 +221,7 @@ with open('Output_Courses.csv', mode='w') as course_file:
         rowData.append(courseSizes[c]) #'Students assigned'
         course_writter.writerow(rowData)
 
-with open('Output_Students.csv', mode='w') as course_file:
+with open('Output_Assigned_Students.csv', mode='w') as course_file:
     student_writer = csv.writer(course_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL, lineterminator = '\n')
     #write column names
     columnNames = []
@@ -233,13 +233,48 @@ with open('Output_Students.csv', mode='w') as course_file:
     
     #write row data
     for s in range(S):
-        ca = "%d"%studentIdAssignments[s][0]
-        for i in range(1, len(studentIdAssignments[s])):
-            ca += ", %d"%studentIdAssignments[s][i]
+        if (studentIdAssignments[s][0] != -1):
+            ca = "%d"%studentIdAssignments[s][0]
+            for i in range(1, len(studentIdAssignments[s])):
+                ca += ", %d"%studentIdAssignments[s][i]
+            
+            rowData = []
+            rowData.append(s+1)#'Student ID'
+            rowData.append(studentFirstName[s])#'First Name'
+            rowData.append(studentLastName[s])#'Last Name'
+            rowData.append(ca)#'Course Assignment'
+            student_writer.writerow(rowData)
         
-        rowData = []
-        rowData.append(s+1)#'Student ID'
-        rowData.append(studentFirstName[s])#'First Name'
-        rowData.append(studentLastName[s])#'Last Name'
-        rowData.append(ca)#'Course Assignment'
-        student_writer.writerow(rowData)
+with open('Output_Unassigned_Students.csv', mode='w') as course_file:
+    student_writer = csv.writer(course_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL, lineterminator = '\n')
+    #write column names
+    columnNames = []
+    columnNames.append('Student ID')
+    columnNames.append('First Name')
+    columnNames.append('Last Name')
+    student_writer.writerow(columnNames)
+    
+    #write row data
+    for s in range(S):
+        if (studentIdAssignments[s][0] == -1):            
+            rowData = []
+            rowData.append(s+1)#'Student ID'
+            rowData.append(studentFirstName[s])#'First Name'
+            rowData.append(studentLastName[s])#'Last Name'
+            student_writer.writerow(rowData)
+            
+with open('Output_Stats.csv', mode='w') as course_file:
+    stats_writer = csv.writer(course_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL, lineterminator = '\n')
+    #write column names
+    stats_writer.writerow(['First Choice Assignments: %.5f (%d/%d)' 
+          % (float(numFirstChoiceAssignment)/S, numFirstChoiceAssignment, S)])
+    stats_writer.writerow(['Second Choice Assignments: %.5f (%d/%d)' 
+          % (float(numSecondChoiceAssignment)/S, numSecondChoiceAssignment, S)])
+    stats_writer.writerow(['Third Choice Assignments: %.5f (%d/%d)'
+          % (float(numThirdChoiceAssignment)/S, numThirdChoiceAssignment, S)])
+    stats_writer.writerow(['No Choice Assignments: %.5f (%d/%d)'
+          % (float(numNoChoiceAssignment)/S, numNoChoiceAssignment, S)])
+    stats_writer.writerow(['Multi Assignments: %.5f (%d/%d)'
+          % (float(numMultiAssignment)/S, numMultiAssignment, S)])
+    stats_writer.writerow(['No Assignments: %.5f (%d/%d)'
+          % (float(numNoAssignment)/S, numNoAssignment, S)])
