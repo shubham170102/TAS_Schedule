@@ -1,13 +1,13 @@
 import pandas as pd
 import csv
-from pulp import *
+from pulp import LpProblem, LpMaximize, getSolver, LpVariable, LpInteger, LpAffineExpression, LpConstraint, LpStatus, value
 
 # Open Excel Files
-studentsDataFile_Name = 'data\MOCK_Students.xlsx'
-coursesDataFile_Name = 'data\MOCK_Courses.xlsx'
+studentsDataFile_Location = 'data\MOCK_Students.xlsx'
+coursesDataFile_Location = 'data\MOCK_Courses.xlsx'
 
-studentsDataFile = pd.read_excel(studentsDataFile_Name, sheet_name=0)
-coursesDataFile = pd.read_excel(coursesDataFile_Name, sheet_name=1)
+studentsDataFile = pd.read_excel(studentsDataFile_Location, sheet_name=0)
+coursesDataFile = pd.read_excel(coursesDataFile_Location, sheet_name=1)
 
 # Read Column data
 courseNames = coursesDataFile['Course Name'].tolist()
@@ -278,3 +278,10 @@ with open('Output_Stats.csv', mode='w') as course_file:
           % (float(numMultiAssignment)/S, numMultiAssignment, S)])
     stats_writer.writerow(['No Assignments: %.5f (%d/%d)'
           % (float(numNoAssignment)/S, numNoAssignment, S)])
+    
+gotFirstChoice = []
+for s in range(S):
+    if (studentIdAssignments[s][0] == (studentFirstChoices[s])): 
+        gotFirstChoice.append(1)
+    else: 
+        gotFirstChoice.append(0)
