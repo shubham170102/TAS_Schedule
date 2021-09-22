@@ -1,8 +1,25 @@
-The matcher.py module can be used like this:
-```
-import matcher
+### What does a matcher do?
+1. Takes 2 files for input describing students and courses
+    - Data needed to solve the problem
+        - Student First Choices
+        - Student Second Choices
+        - Student Third Choices
+        - Course Mins
+        - Course Maxs
+    - For outputting formatted results, we need the above plus:
+        - Student first name
+        - Student last name
+        - Course name
+2. Uses the input data to come up with a solution
+3. Outputs stats, course data w/ sizes, student data w/ assignments, student unassignments
 
-m = matcher.HardConstraintMatcher(
+The [matcher.py](https://github.com/shubham170102/TAS_Schedule/blob/main/matcher.py) module allows us to instantiate a matcher, tell it which excel files to use, which sheet number in the excel file to use, and which columns to read data from before solving and outputing results. Currently, the column names should be passed as python dictionaries.
+
+### Example usage is as follows:
+```
+from matcher import HardConstraintMatcher
+
+matcher = HardConstraintMatcher(
     students_FileLocation = 'Students.xlsx',
     students_SheetName = 0,
     students_Columns = {
@@ -20,17 +37,17 @@ m = matcher.HardConstraintMatcher(
         "Max": "Maximum Size"
     }
 )
-m.solve() #this is the step that takes a long time
-m.outputResults()
+matcher.solve() #this is the step that takes a long time
+matcher.outputResults()
 ```
 
-Requires:
+### Requires:
 - Pulp
 - Pandas
 >Install these by running:
 >`pip install pulp`
 >`pip install pandas`
 
-For the regular hard constraints matcher script (not PuLP):
->Install OR-Tools by running:
+For the old hard constraints matcher script (not PuLP):
+>Install Google OR-Tools by running:
 >`python -m pip install --upgrade --user ortools`
