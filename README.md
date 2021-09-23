@@ -41,6 +41,47 @@ matcher.solve() #this is the step that takes a long time
 matcher.outputResults()
 ```
 
+### To specify these with a JSON file:
+```
+from matcher import HardConstraintMatcher
+from json import load
+
+with open('config.json') as config_file:
+    config = load(config_file)
+    
+    matcher = HardConstraintMatcher(
+        students_FileLocation = config["students_FileLocation"],
+        students_SheetName = config["students_SheetName"],
+        students_Columns = config["students_Columns"],
+        courses_FileLocation = config["courses_FileLocation"],
+        courses_SheetName = config["courses_SheetName"],
+        courses_Columns = config["courses_Columns"]
+    )
+matcher.solve() #this is the step that takes a long time
+matcher.outputResults()
+```
+config.json:
+```
+{
+   "students_FileLocation":"data\\REAL_Students_3.0.xlsx",
+   "students_SheetName":0,
+   "students_Columns":{
+      "First_Name":"first_name",
+      "Last_Name":"last_name",
+      "P1":"Preference_1",
+      "P2":"Preference_2",
+      "P3":"Preference_3"
+   },
+   "courses_FileLocation":"data\\REAL_Courses_4.0-not-working.xlsx",
+   "courses_SheetName":1,
+   "courses_Columns":{
+      "Name":"Course Name",
+      "Min":"Test Min",
+      "Max":"Test Max"
+   }
+}
+```
+
 ### Requires:
 - Pulp
 - Pandas
