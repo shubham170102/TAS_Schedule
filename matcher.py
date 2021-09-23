@@ -47,16 +47,16 @@ What does a matcher do?
         -add a penalty term to the objective for each penalty variable
 '''
 
-import pandas as pd
-import csv
+from pandas import read_excel
+from csv import writer, QUOTE_MINIMAL
 from pulp import LpProblem, LpMaximize, getSolver, LpVariable, LpInteger, LpAffineExpression, LpConstraint, LpStatus, value
 
 class Matcher:
     """
     Example Usage:
-        import matcher
+        from matcher import HardConstraintMatcher
         
-        m = matcher.HardConstraintMatcher(
+        matcher = HardConstraintMatcher(
             students_FileLocation = 'Students.xlsx',
             students_SheetName = 0,
             students_Columns = {
@@ -74,8 +74,8 @@ class Matcher:
                 "Max": "Maximum Size"
             }
         )
-        m.solve() #this is the step that takes a long time
-        m.outputResults()
+        matcher.solve() #this is the step that takes a long time
+        matcher.outputResults()
     """
     
     def __init__(self,
@@ -99,9 +99,9 @@ class Matcher:
         ):
         
         # Open Excel File
-        studentsData = pd.read_excel(students_FileLocation, 
+        studentsData = read_excel(students_FileLocation, 
                                      sheet_name = students_SheetName)
-        coursesData = pd.read_excel(courses_FileLocation, 
+        coursesData = read_excel(courses_FileLocation, 
                                     sheet_name = courses_SheetName)
         
         # Read Column data
@@ -161,7 +161,7 @@ class Matcher:
     
     def solve(self, solver = "PULP_CBC_CMD"):
         self.initProblem()
-        self.model.writeLP("TAS.lp")
+        #self.model.writeLP("TAS.lp")
         self.model.solve(getSolver(solver))
         print("Status:", LpStatus[self.model.status])
         print("Objective value: ", value(self.model.objective))
@@ -179,7 +179,7 @@ class Matcher:
         numNoChoiceAssignment = 0
         numNoAssignment = 0
         numMultiAssignment = 0
-        studentIdAssignments = [[-1] for s in range(self.S)]
+        self.studentIdAssignments = [[-1] for s in range(self.S)]
         courseSizes = [0 for c in range(self.C)]
         courseFirstChoices = [0 for c in range(self.C)]
         courseSecondChoices = [0 for c in range(self.C)]
@@ -212,10 +212,10 @@ class Matcher:
                     else:
                         numNoChoiceAssignment+=1
                     sumAssignments+=1
-                    if studentIdAssignments[s][0] == -1:
-                        studentIdAssignments[s][0] = courseId
+                    if self.studentIdAssignments[s][0] == -1:
+                        self.studentIdAssignments[s][0] = courseId
                     else:
-                        studentIdAssignments[s].append(courseId)
+                        self.studentIdAssignments[s].append(courseId)
             if sumAssignments > 1:
                 numMultiAssignment+=1
             elif sumAssignments == 0:
@@ -239,8 +239,8 @@ class Matcher:
         
         
         #Output to CSV
-        with open('Output_Courses.csv', mode='w') as course_file:
-            course_writter = csv.writer(course_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL, lineterminator = '\n')
+        with open('Output_Courses.csv', mode='w', encoding='utf-8') as course_file:
+            course_writter = writer(course_file, delimiter=',', quotechar='"', quoting=QUOTE_MINIMAL, lineterminator = '\n')
             #write column names
             columnNames = []
             columnNames.append('Course number')
@@ -272,8 +272,8 @@ class Matcher:
                 rowData.append(courseSizes[c]) #'Students assigned'
                 course_writter.writerow(rowData)
         
-        with open('Output_Assigned_Students.csv', mode='w') as course_file:
-            student_writer = csv.writer(course_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL, lineterminator = '\n')
+        with open('Output_Assigned_Students.csv', mode='w', encoding='utf-8') as course_file:
+            student_writer = writer(course_file, delimiter=',', quotechar='"', quoting=QUOTE_MINIMAL, lineterminator = '\n')
             #write column names
             columnNames = []
             columnNames.append('Student ID')
@@ -284,20 +284,20 @@ class Matcher:
             
             #write row data
             for s in range(self.S):
-                if (studentIdAssignments[s][0] != -1):
-                    ca = "%d"%studentIdAssignments[s][0]
-                    for i in range(1, len(studentIdAssignments[s])):
-                        ca += ", %d"%studentIdAssignments[s][i]
-                    
-                    rowData = []
-                    rowData.append(s+1)#'Student ID'
-                    rowData.append(self.studentFirstName[s])#'First Name'
-                    rowData.append(self.studentLastName[s])#'Last Name'
-                    rowData.append(ca)#'Course Assignment'
-                    student_writer.writerow(rowData)
+                ca = "%d"%self.studentIdAssignments[s][0]
+                for i in range(1, len(self.studentIdAssignments[s])):
+                    ca += ", %d"%self.studentIdAssignments[s][i]
                 
-        with open('Output_Unassigned_Students.csv', mode='w') as course_file:
-            student_writer = csv.writer(course_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL, lineterminator = '\n')
+                rowData = []
+                rowData.append(s+1)#'Student ID'
+                rowData.append(self.studentFirstName[s])#'First Name'
+                rowData.append(self.studentLastName[s])#'Last Name'
+                rowData.append(ca)#'Course Assignment'
+                student_writer.writerow(rowData)
+
+                
+        with open('Output_Unassigned_Students.csv', mode='w', encoding='utf-8') as course_file:
+            student_writer = writer(course_file, delimiter=',', quotechar='"', quoting=QUOTE_MINIMAL, lineterminator = '\n')
             #write column names
             columnNames = []
             columnNames.append('Student ID')
@@ -307,15 +307,15 @@ class Matcher:
             
             #write row data
             for s in range(self.S):
-                if (studentIdAssignments[s][0] == -1):            
+                if (self.studentIdAssignments[s][0] == -1):            
                     rowData = []
                     rowData.append(s+1)#'Student ID'
                     rowData.append(self.studentFirstName[s])#'First Name'
                     rowData.append(self.studentLastName[s])#'Last Name'
                     student_writer.writerow(rowData)
                     
-        with open('Output_Stats.csv', mode='w') as course_file:
-            stats_writer = csv.writer(course_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL, lineterminator = '\n')
+        with open('Output_Stats.csv', mode='w', encoding='utf-8') as course_file:
+            stats_writer = writer(course_file, delimiter=',', quotechar='"', quoting=QUOTE_MINIMAL, lineterminator = '\n')
             #write column names
             stats_writer.writerow(['First Choice Assignments: %.5f (%d/%d)' 
                   % (float(numFirstChoiceAssignment)/self.S, numFirstChoiceAssignment, self.S)])
@@ -366,10 +366,10 @@ class HardConstraintMatcher(Matcher):
         for c in range(self.C):    
             hardMin = self.sumStudentsInClass[c] - self.courseMins[c]*self.classWillRun[c]
             hardMax = self.sumStudentsInClass[c] - self.courseMaxs[c]*self.classWillRun[c]
-            cMin = LpConstraint(e=hardMin, sense=1, name="C%dm"%c, rhs=0)
-            cMax = LpConstraint(e=hardMax, sense=-1, name="C%dM"%c, rhs=0)
-            classConstraints[0][c] = cMin
-            classConstraints[1][c] = cMax
+            minConstraint = LpConstraint(e=hardMin, sense=1, name="C%dm"%c, rhs=0)
+            maxConstraint = LpConstraint(e=hardMax, sense=-1, name="C%dM"%c, rhs=0)
+            classConstraints[0][c] = minConstraint
+            classConstraints[1][c] = maxConstraint
         
         #Constraint limiting the number of classes a student should be assigned to
         maxAssignmentConstraint = [LpConstraint() for s in range(self.S)]
@@ -378,10 +378,21 @@ class HardConstraintMatcher(Matcher):
             for c in range(self.C):
                 sumOfAssignments += self.studentAssignments[s][c]
             maxAssignmentConstraint[s] = sumOfAssignments <= 1
+            
+        #Constraint ensuring that a student gets assigned to one of there three preferences or no class
+        prefAssignmentConstraint = [LpConstraint() for s in range(self.S)]
+        for s in range(self.S):
+            sumOfNoPrefAssignments = LpAffineExpression()
+            for c in range(self.C):
+                if (self.studentPreferences[s][c] == 0):
+                    sumOfNoPrefAssignments += self.studentAssignments[s][c]
+            prefAssignmentConstraint[s] = sumOfNoPrefAssignments <= 0
     
         #Add constraints to model
         for s in range(self.S):
             self.model += maxAssignmentConstraint[s]
+        for s in range(self.S):
+            self.model += prefAssignmentConstraint[s]
         for c in range(self.C):
             #Dr. Miller's Constraints
             # for s in range(self.S):

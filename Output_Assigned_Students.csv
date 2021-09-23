@@ -18,7 +18,7 @@ Student ID,First Name,Last Name,Course Assignment
 17,Bruis,Tourmell,10
 18,Guthrie,Huitt,1
 19,Elizabet,Josef,22
-20,Kelly,Klaves,24
+20,Kelly,Klaves,9
 21,Kassey,Vatini,15
 22,Jerrold,Balazot,9
 23,Jory,Reimers,10
@@ -33,7 +33,7 @@ Student ID,First Name,Last Name,Course Assignment
 32,Ardelis,Wolseley,28
 33,Ronda,McGinney,28
 34,Der,Dibbin,5
-35,Hyacinthie,Truin,24
+35,Hyacinthie,Truin,10
 36,Elle,Dummett,3
 37,Aube,Meiklejohn,3
 38,Carmina,Hadley,28
@@ -57,7 +57,7 @@ Student ID,First Name,Last Name,Course Assignment
 56,Rolf,Bathersby,3
 57,Wiley,Cooling,20
 58,Druci,Petken,10
-59,Henry,McMurraya,9
+59,Henry,McMurraya,26
 60,Sharia,Votier,13
 61,Carolyne,Caddick,14
 62,Chick,McKerley,13
@@ -89,7 +89,7 @@ Student ID,First Name,Last Name,Course Assignment
 88,Karilynn,Yeld,35
 89,Hermie,Joel,20
 90,Artemas,Eve,32
-91,Tessi,Rippen,25
+91,Tessi,Rippen,1
 92,Tabor,Duckham,21
 93,Clint,Standbridge,14
 94,Carlene,Gelsthorpe,15
@@ -131,7 +131,7 @@ Student ID,First Name,Last Name,Course Assignment
 130,Prentiss,Reddington,21
 131,Neill,Dellenbach,17
 132,Essy,Drayn,3
-133,Kasey,Traske,5
+133,Kasey,Traske,28
 134,Terza,Schoenfisch,10
 135,Lara,Willbond,23
 136,Helen,Reddick,30
@@ -142,7 +142,7 @@ Student ID,First Name,Last Name,Course Assignment
 141,Anni,Extil,24
 142,Sig,Riseam,9
 143,Christine,Najafian,27
-144,Cullie,Wagen,10
+144,Cullie,Wagen,32
 145,Elisabet,Cortez,10
 146,Tami,Graybeal,35
 147,Gary,Junkinson,14
@@ -168,13 +168,13 @@ Student ID,First Name,Last Name,Course Assignment
 167,Grazia,Kasman,23
 168,Hillel,Stonnell,21
 169,Jeannette,Budding,29
-170,Arman,Venable,18
+170,Arman,Venable,3
 171,Gannon,Utridge,25
 172,Aigneis,Haresign,5
 173,Garey,Sawart,25
 174,Egan,Deare,1
 175,Ranique,Hardingham,5
-176,Ogdan,Cummings,1
+176,Ogdan,Cummings,-1
 177,Adair,Rosenwasser,3
 178,Darnall,Foot,15
 179,Sarette,Stanlick,32
@@ -184,7 +184,7 @@ Student ID,First Name,Last Name,Course Assignment
 183,Lydie,Dorton,21
 184,Elisa,Fullagar,18
 185,Lefty,Fakes,23
-186,Rae,Chillingworth,23
+186,Rae,Chillingworth,1
 187,Alexandro,Lighten,27
 188,Druci,Minithorpe,10
 189,Joycelin,Shillabear,9
@@ -193,9 +193,9 @@ Student ID,First Name,Last Name,Course Assignment
 192,Walther,Radish,10
 193,Ogdon,Simmig,3
 194,Leshia,Rozycki,29
-195,Molly,Turrill,3
+195,Molly,Turrill,23
 196,Taddeo,Halfhead,26
-197,Doreen,Jeanequin,27
+197,Doreen,Jeanequin,10
 198,Frederic,Giacobelli,19
 199,Noella,Lewson,34
 200,Marcel,Dodworth,22
@@ -234,7 +234,7 @@ Student ID,First Name,Last Name,Course Assignment
 233,Esme,Goligly,30
 234,Ellissa,Guwer,15
 235,Livvyy,Gritten,9
-236,Clementine,Canedo,17
+236,Clementine,Canedo,3
 237,Palm,Randles,29
 238,Vina,Ellerey,23
 239,Hollyanne,Carillo,29
@@ -242,7 +242,7 @@ Student ID,First Name,Last Name,Course Assignment
 241,Ly,Dafydd,30
 242,Tomlin,Roggerone,24
 243,Corbie,Tutt,3
-244,Cherida,Gori,1
+244,Cherida,Gori,-1
 245,Pyotr,Saville,13
 246,Rozelle,Macartney,5
 247,Forest,Hobbema,35
@@ -282,11 +282,11 @@ Student ID,First Name,Last Name,Course Assignment
 281,Chaim,Lettsom,26
 282,Cordy,Bachellier,14
 283,Randi,Ackery,16
-284,Ned,Leader,9
+284,Ned,Leader,33
 285,Gerladina,Oles,26
 286,Ailyn,Kix,1
 287,Conway,Roarty,21
-288,Dan,Spurgeon,19
+288,Dan,Spurgeon,9
 289,Wayne,de Clerc,10
 290,Irina,Batteson,3
 291,Purcell,Depke,17
@@ -304,13 +304,13 @@ Student ID,First Name,Last Name,Course Assignment
 303,Diann,McRobb,16
 304,Nels,Beaford,27
 305,Gaile,Lamberts,19
-306,Lorna,Kolinsky,25
+306,Lorna,Kolinsky,9
 307,Johnna,Petrina,25
 308,Griz,Derr,20
 309,Hendrick,Jerschke,32
 310,Nanette,Sendley,1
 311,Vivyan,Golsthorp,15
-312,Carney,Foston,9
+312,Carney,Foston,34
 313,D'arcy,Straine,14
 314,Trish,Gyenes,10
 315,Thekla,Greson,17
@@ -324,7 +324,7 @@ Student ID,First Name,Last Name,Course Assignment
 323,Denver,McMearty,16
 324,Sileas,Dawnay,36
 325,Arman,Glasscott,19
-326,Stillman,Kinner,33
+326,Stillman,Kinner,5
 327,Adelbert,Hadkins,23
 328,Carina,Inglefield,26
 329,Evvy,Shepherdson,34
@@ -350,14 +350,14 @@ Student ID,First Name,Last Name,Course Assignment
 349,Gustavus,Adamolli,5
 350,Moyna,O'Shiels,31
 351,Thain,Guyton,13
-352,Nollie,Sergison,3
+352,Nollie,Sergison,19
 353,Lucille,Mochan,32
 354,Chilton,MacGahey,3
 355,Desiri,Penddreth,1
 356,Desdemona,Dunmore,5
 357,Whit,Komorowski,24
 358,Brenden,Eliassen,5
-359,Ashbey,McKerlie,10
+359,Ashbey,McKerlie,14
 360,Dory,Dechelette,33
 361,Daveen,Ould,23
 362,Manolo,Lusted,5

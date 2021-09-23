@@ -1,22 +1,16 @@
-import matcher
+from matcher import HardConstraintMatcher
+from json import load
 
-m = matcher.HardConstraintMatcher(
-    students_FileLocation = 'data\MOCK_Students.xlsx',
-    students_SheetName = 0,
-    students_Columns = {
-        "First_Name": "first_name",
-        "Last_Name": "last_name",
-        "P1": "Preference 1",
-        "P2": "Preference 2",
-        "P3": "Preference 3",
-    },
-    courses_FileLocation = 'data\MOCK_Courses.xlsx',
-    courses_SheetName = 1,
-    courses_Columns = {
-        "Name": "Course Name",
-        "Min": "Test Min",
-        "Max": "Test Max"
-    }
-)
-m.solve() #this is the step that takes a long time
-m.outputResults()
+with open('config.json') as config_file:
+    config = load(config_file)
+    
+    matcher = HardConstraintMatcher(
+        students_FileLocation = config["students_FileLocation"],
+        students_SheetName = config["students_SheetName"],
+        students_Columns = config["students_Columns"],
+        courses_FileLocation = config["courses_FileLocation"],
+        courses_SheetName = config["courses_SheetName"],
+        courses_Columns = config["courses_Columns"]
+    )
+matcher.solve() #this is the step that takes a long time
+matcher.outputResults()
