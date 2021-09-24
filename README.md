@@ -63,7 +63,7 @@ with open('config.json') as config_file:
 matcher.solve() #this is the step that takes a long time
 matcher.outputResults()
 ```
-config.json:
+**config.json:**
 ```
 {
    "students_FileLocation":"data\\MOCK_Students.xlsx",
