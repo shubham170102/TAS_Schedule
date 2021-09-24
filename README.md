@@ -13,7 +13,10 @@
 2. Uses the input data to come up with a solution
 3. Outputs stats, course data w/ sizes, student data w/ assignments, student unassignments
 
-The [matcher.py](https://github.com/shubham170102/TAS_Schedule/blob/main/matcher.py) module allows us to instantiate a matcher, tell it which excel files to use, which sheet number in the excel file to use, and which columns to read data from before solving and outputing results. Currently, the column names should be passed as python dictionaries.
+The [matcher.py](https://github.com/shubham170102/TAS_Schedule/blob/main/matcher.py) module allows us to instantiate a matcher, tell it which excel files to use, which sheet number in the excel file to use, and which columns to read data from before solving and outputing results. Currently, the column names should be passed as python dictionaries. The matcher should be called in this order:
+1. matcher = HardConstraintMatcher(students_fileLocaion, students_SheetName, students_Columns, courses_FileLocation, courses_SheetName, courses_Columns)
+2. matcher.solve()
+3. matcher.outputResults()
 
 ### Example usage is as follows:
 ```
@@ -63,7 +66,7 @@ matcher.outputResults()
 config.json:
 ```
 {
-   "students_FileLocation":"data\\REAL_Students_3.0.xlsx",
+   "students_FileLocation":"data\\MOCK_Students.xlsx",
    "students_SheetName":0,
    "students_Columns":{
       "First_Name":"first_name",
@@ -72,7 +75,7 @@ config.json:
       "P2":"Preference_2",
       "P3":"Preference_3"
    },
-   "courses_FileLocation":"data\\REAL_Courses_4.0-not-working.xlsx",
+   "courses_FileLocation":"data\\MOCK_Courses.xlsx",
    "courses_SheetName":1,
    "courses_Columns":{
       "Name":"Course Name",
